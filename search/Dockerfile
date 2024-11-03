@@ -14,6 +14,6 @@ RUN apt update && \
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-COPY . .
-CMD [ "python", "./server.py" ]
+WORKDIR /src
+CMD [ "python", "server.py" ]
 EXPOSE 8001

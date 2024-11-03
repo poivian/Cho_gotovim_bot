@@ -34,6 +34,10 @@ services:
       - ${PG_PORT}:5432
     volumes:
       - .postgres:/data/postgres
+    #command: ["sh", "-c", "sleep 2 && docker exec -it db psql -U database -c 'CREATE EXTENSION postgis;' && psql -U database -f /docker-entrypoint-initdb.d/dump.sql"]
+    #command: ["sh", "-c", "sleep 2 && psql -U root -f /docker-entrypoint-initdb.d/dump.sql"]
+    #docker exec -i pg_container_name /bin/bash -c "PGPASSWORD=pg_password psql --username pg_username database_name" < /path/on/your/machine/dump.sql
+
     restart: always
 
   whisper:
@@ -46,5 +50,5 @@ services:
     ports:
       - 9000:9000
     volumes:
-      - .model3:/data/whisper
+      - .model:/data/whisper
     restart: always

@@ -11,7 +11,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.enums import ChatAction
 
 from utils.recognition import recognition_audio
-from database.requests import get_recepts, get_recepts_from_db, add_new_user
+from database.requests import get_recepts, get_recepts_from_db, add_new_user, add_stat_user
 from keyboards.keyboards import recept_buttons
 from utils.create_msg import create_recept_message
 
@@ -35,11 +35,14 @@ async def audio(msg: Message, bot:Bot):
     file = await bot.get_file(msg.voice.file_id)
     log.debug(f'Получено голосовое: {file.file_id} от {msg.from_user.id}')
     await msg.bot.send_chat_action(chat_id=msg.from_user.id, action=ChatAction.TYPING)
+
     with BytesIO() as bytes:
         await bot.download_file(file.file_path, destination=bytes)
         bytes.seek(0)
         text_voice = await recognition_audio(audio_file=bytes)
         log.debug(f'Распознано: {text_voice} от {msg.from_user.id}')
+    
+    await add_stat_user(tg_id=msg.from_user.id, stat_name='requests_count')
     kb = await get_list_recepts(text_search=text_voice)
     await msg.answer(text='Выбор блюд:', reply_markup=kb)
     # await msg.edit_reply_markup(reply_markup=kb)
@@ -62,3 +65,4 @@ async def get_recept(callback:CallbackQuery):
     await callback.message.answer(text=txts[0])
     for row in txts[1]:
         await callback.message.answer(text=row)
+    await add_stat_user(tg_id=callback.from_user.id, stat_name='recept_count')

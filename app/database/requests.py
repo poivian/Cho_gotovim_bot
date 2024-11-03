@@ -20,8 +20,17 @@ async def add_new_user(tg_id:str, username:str, firstname:str, lastname:str) :
     async with await psycopg.AsyncConnection.connect(conninfo=getenv('DATABASE_CONNECTION_STRING')) as conn:
         async with conn.cursor() as cur:
             await cur.execute(f"""
-                insert into users (tg_id, username, firstname, lastname) values (%s,%s,%s,%s);
+                insert into or replace users (tg_id, username, firstname, lastname) values (%s,%s,%s,%s);
                 """, (tg_id, username, firstname, lastname))
+            await conn.commit() 
+
+async def add_stat_user(tg_id:str, stat_name:str):
+    """добавление статистики"""
+    async with await psycopg.AsyncConnection.connect(conninfo=getenv('DATABASE_CONNECTION_STRING')) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(f"""
+                update users set {stat_name} = {stat_name} + 1 where tg_id = %(tg_id)s;
+                """, {'tg_id': tg_id})
             await conn.commit() 
 
 
